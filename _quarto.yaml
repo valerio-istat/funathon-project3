@@ -30,16 +30,16 @@ website:
     left:
       - text: "Introduction"
         href: index.qmd
-      - text: "Acquisition"
+      - text: "Training Dataset"
         href: 1-acquisition.qmd
       - text: "Model Explanation"
         href: 2-model.qmd
+      - text: "Model Training"
+        href: 3-training.qmd
       - text: "Inference"
-        href: 3-inference.qmd
+        href: 4-inference.qmd
       - text: "Statistics"
-        href: 4-statistics.qmd
-      - text: "Demonstration App"
-        href: "https://inseefrlab.github.io/satellite-images-webapp/"
+        href: 5-statistics.qmd
 
 format:
   html:
