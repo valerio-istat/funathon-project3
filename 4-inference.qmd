@@ -1436,7 +1436,7 @@ folium.LayerControl(collapsed=False).add_to(m_nuts)
 m_nuts
 ```
 :::
-To avoid overloading the web page, the map displaying only the prediction layer is shown.
+To avoid overloading the web page, the map is not deployed.
 ```{python}
 #| eval: true
 #| echo: false
