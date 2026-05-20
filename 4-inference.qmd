@@ -1438,7 +1438,7 @@ m_nuts
 :::
 To avoid overloading the web page, the map is not deployed.
 ```{python}
-#| eval: true
+#| eval: false
 #| echo: false
 import folium
 from folium.raster_layers import ImageOverlay
