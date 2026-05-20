@@ -23,10 +23,10 @@ import geopandas as gpd
 import requests
 import json
 
-api_url = "https://funathon-2026-project3.lab.sspcloud.fr"
+api_url = "https://funathon-2026-project3-api.lab.sspcloud.fr"
 
 image_filepath = (
-    "projet-formation/diffusion/funathon/"
+    "projet-funathon/"
     "2026/project3/data/images/LU000/2024/"
     "4042000_2951690_0_637.tif"
 )
@@ -135,7 +135,7 @@ stats_tile["share_pct"] = (__ / total_km2 * 100).round(2)  # TODO: column to nor
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 from great_tables import GT, style, loc
 
 stats_tile = (
@@ -264,7 +264,7 @@ summary_df = pd.DataFrame({
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 import pandas as pd
 
 sealed_km2 = stats_tile.loc[stats_tile["label"] == 1,             "total_area_km2"].sum()
@@ -351,7 +351,7 @@ plt.show()
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(figsize=(8, 4))
@@ -490,7 +490,7 @@ comparison = pd.concat([__, __], axis=1).fillna(0).reset_index()  # TODO: tile_s
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 stats_nuts = (
     gdf_nuts.groupby(["label", "class_name"])
     .agg(
@@ -619,7 +619,7 @@ plt.show()
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 stats_nuts.set_index("class_name")["total_area_km2"].sort_values().plot(
@@ -734,7 +734,7 @@ m
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 import folium
 from folium.plugins import HeatMap
 
@@ -800,7 +800,7 @@ with colour-coded `change (pp)` and a grouped bar chart.
 ```{python}
 #| eval: false
 image_filepath_2021 = (
-    "projet-formation/diffusion/funathon/"
+    "projet-funathon/"
     "2026/project3/data/images/LU000/2021/"
     "__"  # TODO: same tile filename as 2024
 )
@@ -894,9 +894,9 @@ plt.show()
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 image_filepath_2021 = (
-    "projet-formation/diffusion/funathon/"
+    "projet-funathon/"
     "2026/project3/data/images/LU000/2021/"
     "4042000_2951690_0_637.tif"
 )
@@ -989,7 +989,7 @@ plt.show()
 #| eval: true
 #| echo: false
 fig, ax = plt.subplots(figsize=(9, 5))
-x     = range(len(tile_comparison))
+x = range(len(tile_comparison))
 width = 0.35
 ax.barh([i + width / 2 for i in x], tile_comparison["2021 (%)"], width, label="2021", color="steelblue")
 ax.barh([i - width / 2 for i in x], tile_comparison["2024 (%)"], width, label="2024", color="darkorange")
@@ -1035,8 +1035,8 @@ gdf_nuts_2021 = gpd.GeoDataFrame.from_features(
     crs="EPSG:3035",
 )
 
-gdf_nuts_2021["area_m2"]    = gdf_nuts_2021.geometry.area
-gdf_nuts_2021["area_km2"]   = gdf_nuts_2021["area_m2"] / 1e6
+gdf_nuts_2021["area_m2"] = gdf_nuts_2021.geometry.area
+gdf_nuts_2021["area_km2"] = gdf_nuts_2021["area_m2"] / 1e6
 gdf_nuts_2021["class_name"] = gdf_nuts_2021["label"].map(class_names)
 
 stats_nuts_2021, _ = compute_stats(__)  # TODO: 2021 NUTS3 GeoDataFrame
@@ -1065,10 +1065,10 @@ nuts_comparison["change (pp)"] = (nuts_comparison["__"] - nuts_comparison["__"])
 #| eval: false
 rows = []
 for label, category in [
-    (1,         "Sealed"),
+    (1, "Sealed"),
     ([2, 3, 4], "Forest"),
-    ([6, 7],    "Agricultural"),
-    (10,        "Water"),
+    ([6, 7], "Agricultural"),
+    (10, "Water"),
 ]:
     labels_list = [label] if isinstance(label, int) else label
     km2_2021 = stats_nuts_2021.loc[stats_nuts_2021["label"].isin(labels_list), "total_area_km2"].sum()
@@ -1093,8 +1093,8 @@ area_summary = pd.DataFrame(rows)
 ```{python}
 #| eval: false
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-x      = range(len(nuts_comparison))
-width  = 0.35
+x = range(len(nuts_comparison))
+width = 0.35
 labels = nuts_comparison.index.tolist()
 axes[0].barh([i + width / 2 for i in x], nuts_comparison["2021 (%)"], width, label="2021", color="steelblue")
 axes[0].barh([i - width / 2 for i in x], nuts_comparison["2024 (%)"], width, label="2024", color="darkorange")
@@ -1129,7 +1129,7 @@ plt.show()
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 response_nuts_2021 = requests.get(
     f"{api_url}/predict_nuts",
     params={"nuts_id": "LU000", "year": 2021},
@@ -1140,8 +1140,8 @@ gdf_nuts_2021 = gpd.GeoDataFrame.from_features(
     crs="EPSG:3035",
 )
 
-gdf_nuts_2021["area_m2"]    = gdf_nuts_2021.geometry.area
-gdf_nuts_2021["area_km2"]   = gdf_nuts_2021["area_m2"] / 1e6
+gdf_nuts_2021["area_m2"] = gdf_nuts_2021.geometry.area
+gdf_nuts_2021["area_km2"] = gdf_nuts_2021["area_m2"] / 1e6
 gdf_nuts_2021["class_name"] = gdf_nuts_2021["label"].map(class_names)
 
 stats_nuts_2021, _ = compute_stats(gdf_nuts_2021)

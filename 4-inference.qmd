@@ -8,30 +8,17 @@ format:
 
 # Load the Trained Model
 
-This section covers how to load a trained segmentation model apply it to a Sentinel-2 image to produce land-cover predictions.
+This section covers how to load a trained segmentation model and apply it to a
+Sentinel-2 image to produce land-cover predictions.
 
 ## From MLflow (optional)
 
-If a model was trained in the previous step, this exercice permits to load a model from the MLFlow Model Regestry.
-MLflow lets you version and compare training runs, then promote the best model
-to a **Model Registry**. Follow these steps to register your model:
+If you completed the training step, you can load your registered model directly
+from the MLflow Model Registry instead of using the pre-trained checkpoint.
 
-1. In the top left, select **Model Training**.
-2. Go to **Experiments** and open `"funathon-2026-project3"`.
-3. In the **Runs** section, compare runs using the logged metrics and select
-   the best-performing one.
-4. Click **Register model**, name it `"segmentation-sentinel2-model"`, and confirm.
-5. Verify it appears in the **Model Registry**.
-
-Create a `.env` file at the root of your project and fill in your MLflow credentials:
-
-```
-MLFLOW_TRACKING_URI=""
-MLFLOW_TRACKING_USERNAME=""
-MLFLOW_TRACKING_PASSWORD=""
-```
-
-Once registered, load the model using `mlflow.pyfunc.load_model`.
+If you created a `.env` file at the root of your project (required when your
+MLflow service was launched after your VSCode service), it will be picked up
+automatically here.
 
 ::: {.callout-caution}
 ## Exercise 1 — Load a model from MLflow (optional)
@@ -145,8 +132,8 @@ MinIO — no MLflow credentials or account required. The model artifacts are
 stored at:
 
 ```
-https://minio.lab.sspcloud.fr/projet-formation/mlflow-artifacts/
-4/76277e88294e4ed4bf22d64dbc2d70d3/artifacts/
+https://minio.lab.sspcloud.fr/projet-funathon/mlflow-artifacts/
+1/a2cc538d334b474389efcc54115ef13d/artifacts/
 ```
 
 Two artifacts are needed:
@@ -173,8 +160,8 @@ locally, along with all the hyperparameters needed to run inference.
 1. Connect to MinIO anonymously with `s3fs.S3FileSystem(anon=True)`
 2. Download the `model/` directory recursively to a local temp folder
 3. Load the model with `mlflow.pyfunc.load_model()`
-4. Enter https://datalab.sspcloud.fr/file-explorer/projet-formation/mlflow-artifacts/
-4/76277e88294e4ed4bf22d64dbc2d70d3/artifacts/ in your web search bar and look at the files in it.
+4. Enter https://datalab.sspcloud.fr/file-explorer/projet-funathon/mlflow-artifacts/
+1/a2cc538d334b474389efcc54115ef13d/artifacts/ in your web search bar and look at the files in it.
 Find the file containing all theses parameters `n_bands`, `tiles_size`, `augment_size`,
 `module_name`, `normalization_mean`, `normalization_std` and load it.
 :::
@@ -224,7 +211,7 @@ print(f"std={normalization_std}")
 - Pass `anon=True` to `s3fs.S3FileSystem()` for anonymous public access.
 - The MinIO endpoint URL is `"https://minio.lab.sspcloud.fr"`.
 - The S3 path does **not** include `s3://` — just the bucket and key:
-  `"projet-formation/mlflow-artifacts/4/<run_id>/artifacts/model"`.
+  `"projet-funathon/mlflow-artifacts/1/<run_id>/artifacts/model"`.
 - `fs.get(src, dst, recursive=True)` downloads the full directory tree.
 - `mlflow.pyfunc.load_model()` accepts a local directory path as a string.
 - The `params.json` URL follows the same structure as the model URL,
@@ -249,7 +236,7 @@ fs = s3fs.S3FileSystem(
     endpoint_url="https://minio.lab.sspcloud.fr",
 )
 
-s3_run_path = "projet-formation/mlflow-artifacts/4/76277e88294e4ed4bf22d64dbc2d70d3/artifacts/"
+s3_run_path = "projet-funathon/mlflow-artifacts/1/a2cc538d334b474389efcc54115ef13d/artifacts/"
 
 s3_model_path = s3_run_path + "model"
 local_model_dir = Path(tempfile.mkdtemp()) / "model"
@@ -362,7 +349,7 @@ from intermediate_solutions.solution_step3.utils import (
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 image_target = "LU000/2024/4022000_2979190_0_354.tif"
 
 image_path = (
@@ -486,7 +473,7 @@ plt.show()
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 satellite_img_array = satellite_img["array"] 
 rgb = np.transpose(
     satellite_img_array[[3, 2, 1]], (1, 2, 0)
@@ -616,7 +603,7 @@ plt.show()
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 gdf_pred = create_geojson_from_mask(satellite_img, predictions)
 
 print(f"{len(gdf_pred)} polygons extracted")
@@ -778,7 +765,7 @@ In Exercise 8 (API section), `si` will be loaded via `get_satellite_image()`.
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 import folium
 from folium.raster_layers import ImageOverlay
 from rasterio.warp import transform_bounds
@@ -828,10 +815,10 @@ m
 # Inference via API
 
 Running inference locally works well for a single tile, but scaling to an
-entire NUTS3 region (which may contain dozens of tiles) requires more
+entire NUTS3 region — which may contain dozens of tiles — requires more
 infrastructure. A **REST API** has been deployed for this purpose.  
 The API's interactive documentation is available at
-[https://funathon-2026-project3.lab.sspcloud.fr/docs](https://funathon-2026-project3.lab.sspcloud.fr/docs).
+[https://funathon-2026-project3-api.lab.sspcloud.fr/docs](https://funathon-2026-project3-api.lab.sspcloud.fr/docs).
 It lists all available endpoints and lets you test them directly from your browser.
 
 ## Architecture
@@ -852,46 +839,71 @@ features:
 
 ## Endpoints
 
-The API exposes three endpoints:
+The API exposes four endpoints:
 
 | Endpoint | Description |
 |---|---|
-| `GET /find_image` | Returns the filename of the Sentinel-2 tile that contains a given GPS point |
+| `GET /find_nuts` | Returns the NUTS3 identifier that contains a given GPS point |
+| `GET /find_image` | Returns the filepath of the Sentinel-2 tile that contains a given GPS point |
 | `GET /predict_image` | Runs inference on a single image; optionally returns vectorised polygons |
 | `GET /predict_nuts` | Runs inference on all tiles for a NUTS3/year pair and returns merged polygons |
 
-### `GET /find_image`
+### `GET /find_nuts`
 
-This endpoint takes a GPS point (`[latitude, longitude]` in WGS84) and a NUTS3
-identifier + year. It loads a pre-computed `filename2bbox.parquet` index from
-MinIO — a table that maps each tile filename to its bounding box in EPSG:3035 —
-then performs a spatial query to find which tile contains the point.
+This endpoint identifies which NUTS3 region contains a given GPS point. It
+relies on the official Eurostat NUTS boundaries (NUTS_RG_01M_2021, level 3,
+EPSG:4326) loaded at startup. Internally, it performs a point-in-polygon
+spatial join to find the matching region.
+
+This endpoint is used internally by `/find_image` when no `nuts_id` is
+provided by the caller: rather than scanning all available NUTS3 parquet
+indexes, the API first resolves the region from the coordinates, then queries
+only the relevant index.
 
 **Parameters:**
 
 | Name | Type | Description |
 |---|---|---|
 | `gps_point` | `List[float, float]` | `[latitude, longitude]` in WGS84 (EPSG:4326) |
-| `nuts_id` | `str` | NUTS3 region identifier, e.g. `"LU000"` |
-| `year` | `int` | Year of the satellite images (2018–2024) |
 
-**Response:** the S3 filename of the tile containing the point (string).
+**Response:** the NUTS3 identifier as a string (e.g. `"LU000"`), or an empty
+string if the point falls outside all known regions.
+
+### `GET /find_image`
+
+This endpoint takes a GPS point (`[latitude, longitude]` in WGS84) and an
+optional NUTS3 identifier and year. It first resolves the NUTS3 region via
+`/find_nuts` if none is provided, then loads a pre-computed
+`filename2bbox.parquet` index from MinIO — a table that maps each tile filename
+to its bounding box in EPSG:3035 — and performs a spatial query to find which
+tile contains the point.
+
+**Parameters:**
+
+| Name | Type | Description |
+|---|---|---|
+| `gps_point` | `List[float, float]` | `[latitude, longitude]` in WGS84 (EPSG:4326) |
+| `year` | `int` | Year of the satellite images (2018–2024) |
+| `nuts_id` | Optional `str` | NUTS3 region identifier, e.g. `"LU000"`. Resolved automatically if not provided. |
+
+**Response:** the S3 filepath of the tile containing the point (string), or an
+empty string if no tile is found.
 
 ### `GET /predict_image`
 
 This endpoint runs the full segmentation pipeline on a single Sentinel-2 tile
-identified by its S3 path. If a cached prediction exists, it is loaded directly
-without running the model again.
+identified by its S3 path. If a cached prediction already exists in S3, it is
+loaded directly without running the model again.
 
 **Parameters:**
 
 | Name | Type | Description |
 |---|---|---|
 | `image` | `str` | S3 path to the `.tif` file |
-| `polygons` | `bool` | If `True`, also vectorise the mask and return polygons |
+| `polygons` | `bool` | If `True`, also vectorise the mask and return polygons (default: `False`) |
 
 **Response:** a GeoJSON string (FeatureCollection) containing the vectorised
-polygons when `polygons=True`.
+polygons when `polygons=True`, or an empty FeatureCollection otherwise.
 
 ### `GET /predict_nuts`
 
@@ -903,7 +915,7 @@ into a single response. This is the main entry point for region-level analysis.
 
 | Name | Type | Description |
 |---|---|---|
-| `nuts_id` | `str` | NUTS3 region identifier |
+| `nuts_id` | `str` | NUTS3 region identifier, e.g. `"LU000"` |
 | `year` | `int` | Year of the satellite images (2018–2024) |
 
 **Response:** a GeoJSON string (FeatureCollection) containing all predicted
@@ -911,14 +923,85 @@ polygons for the NUTS3 region, in EPSG:3035.
 
 ::: {.callout-note}
 The first call to `/predict_nuts` for a new NUTS3/year combination can take
-several minutes, as it needs to run inference on each tile. Subsequent calls
-are fast thanks to the S3 cache.
+several minutes, as the model needs to run inference on every tile in the
+region. Subsequent calls are near-instant thanks to the S3 prediction cache.
+:::
+
+## Find the NUTS3 region from a GPS point
+
+::: {.callout-caution}
+## Exercise 6
+
+**Goal:** Use the `/find_nuts` endpoint to identify the NUTS3 region that
+contains a GPS point of your choice.
+
+**Steps:**
+
+1. Choose any GPS point in Europe from Google Maps (right-click → copy coordinates)
+2. Call `GET /find_nuts` with the correct parameters
+3. Print the NUTS3 identifier returned by the API
+:::
+
+```{python}
+#| eval: false
+import requests
+
+api_url = "https://funathon-2026-project3-api.lab.sspcloud.fr"
+
+gps_point = __    # TODO: [latitude, longitude] in WGS84 (List[float]), e.g. [49.63, 6.16]
+
+response_nuts = requests.get(
+    f"{api_url}/__",  # TODO: endpoint name (str)
+    params={
+        "gps_point": __,  # TODO: [latitude, longitude] defined above
+    },
+)
+response_nuts.raise_for_status()
+
+nuts_id = response_nuts.json()
+print(f"NUTS3 region found: {nuts_id}")
+```
+
+::: {.callout-tip collapse="true"}
+## Hint
+
+- The Eurostat offices in Luxembourg are at `latitude=49.63`, `longitude=6.16`.
+- The endpoint name is `"find_nuts"`.
+- `requests` automatically repeats the parameter for each list value:
+  `[49.63, 6.16]` → `?gps_point=49.63&gps_point=6.16`.
+- The response is a plain string, e.g. `"LU000"`.
+:::
+
+::: {.callout-tip collapse="true"}
+## Solution
+
+```{python}
+#| eval: true
+#| echo: true
+#| results: hide
+import requests
+
+api_url = "https://funathon-2026-project3-api.lab.sspcloud.fr"
+
+gps_point = [49.63339525016761, 6.1689982433356025]  # [lat, lon]
+
+response_nuts = requests.get(
+    f"{api_url}/find_nuts",
+    params={
+        "gps_point": gps_point,
+    },
+)
+response_nuts.raise_for_status()
+
+nuts_id = response_nuts.json()
+print(f"NUTS3 region found: {nuts_id}")
+```
 :::
 
 ## Find a satellite image from a GPS point
 
 ::: {.callout-caution}
-## Exercise 6
+## Exercise 7
 
 **Goal:** Use the `/find_image` endpoint to find the Sentinel-2 tile that
 contains a GPS point in Luxembourg.
@@ -935,17 +1018,15 @@ contains a GPS point in Luxembourg.
 import json
 import requests
 
-api_url = "https://funathon-2026-project3.lab.sspcloud.fr"
+api_url = "https://funathon-2026-project3-api.lab.sspcloud.fr"
 
 gps_point = __    # TODO: [latitude, longitude] in WGS84 (List[float]), e.g. [49.63, 6.16] for Eurostat
-nuts_id = __  # TODO: NUTS3 identifier (str), e.g. "LU000" for Luxembourg
 year = __    # TODO: year of the satellite images (int, between 2018 and 2024)
 
 response_find = requests.get(
     f"{api_url}/__",  # TODO: endpoint name (str), e.g. "find_image"
     params={
         "gps_point": __,  # TODO: [latitude, longitude] defined above
-        "nuts_id": __,  # TODO: NUTS3 identifier defined above
         "year": __,  # TODO: year defined above
     },
 )
@@ -959,7 +1040,6 @@ print(f"Image found: {image_filename}")
 ## Hint
 
 - The Eurostat offices are at `latitude=49.63`, `longitude=6.16`.
-- The NUTS3 identifier for Luxembourg is `"LU000"`.
 - The endpoint name is `"find_image"`.
 - `requests` automatically repeats the parameter for each list value:
   `[49.63, 6.16]` → `?gps_point=49.63&gps_point=6.16`.
@@ -971,56 +1051,46 @@ print(f"Image found: {image_filename}")
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 import json
 import requests
 
-api_url = "https://funathon-2026-project3.lab.sspcloud.fr"
+api_url = "https://funathon-2026-project3-api.lab.sspcloud.fr"
 
 gps_point = [49.63339525016761, 6.1689982433356025]  # [lat, lon]
-nuts_id   = "LU000"
-year      = 2024
+year = 2024
 
 response_find = requests.get(
     f"{api_url}/find_image",
     params={
         "gps_point": gps_point,
-        "nuts_id": nuts_id,
         "year": year,
     },
 )
 response_find.raise_for_status()
 
-image_filename = response_find.json()
-print(f"Image found: {image_filename}")
+image_filepath = response_find.json()
+print(f"Image found: {image_filepath}")
 ```
 :::
 
 ## Predict a single image via the API
 
 ::: {.callout-caution}
-## Exercise 7
+## Exercise 8
 
 **Goal:** Call `/predict_image` with the filename found in Exercise 6 to
 retrieve the predicted polygons, then visualise them on a static plot.
 
 **Steps:**
 
-1. Build the S3 image path (`s3_base_url` + `image_filename`)
-2. Call `GET /predict_image` with `polygons=True`
-3. Parse the response as a GeoDataFrame
-4. Load the RGB composite with `get_satellite_image()` and display 2 subplots
+1. Call `GET /predict_image` with `polygons=True`
+2. Parse the response as a GeoDataFrame
+3. Load the RGB composite with `get_satellite_image()` and display 2 subplots
 :::
 
 ```{python}
 #| eval: false
-s3_base_url = (
-    "projet-funathon/2026/project3/"
-    "data/images/__/__/"  # TODO: fill in nuts_id and year
-)
-
-image_filepath = s3_base_url + image_filename
-
 response_pred = requests.get(
     f"{api_url}/__",  # TODO: endpoint name (str), e.g. "predict_image"
     params={
@@ -1075,8 +1145,6 @@ plt.show()
 ::: {.callout-tip collapse="true"}
 ## Hint
 
-- The S3 path follows the pattern:
-  `"projet-formation/diffusion/funathon/2026/project3/data/images/{nuts_id}/{year}/"`.
 - The endpoint name is `"predict_image"`.
 - Set `polygons=True` to include GeoJSON polygons in the response.
 - `response_pred.json()` returns a GeoJSON string; `json.loads()` parses it
@@ -1093,15 +1161,8 @@ plt.show()
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 import geopandas as gpd
-
-s3_base_url = (
-    "projet-formation/diffusion/funathon/2026/project3/"
-    "data/images/LU000/2024/"
-)
-
-image_filepath = s3_base_url + image_filename
 
 response_pred = requests.get(
     f"{api_url}/predict_image",
@@ -1158,7 +1219,7 @@ fig.legend(handles=legend_elements, loc="center left", bbox_to_anchor=(1.0, 0.5)
 ## Predict an entire NUTS3 region
 
 ::: {.callout-caution}
-## Exercise 8
+## Exercise 9
 
 **Goal:** Use `/predict_nuts` to retrieve predictions for all Sentinel-2 tiles
 covering Luxembourg (`LU000`) in 2024, visualise the result on a Folium map,
@@ -1175,7 +1236,7 @@ and save it to a Parquet file.
 ```{python}
 #| eval: false
 nuts_id = "LU000"
-year    = 2024
+year = 2024
 
 response_nuts = requests.get(
     f"{api_url}/__",  # TODO: endpoint name (str), e.g. "predict_nuts"
@@ -1205,7 +1266,7 @@ import numpy as np
 import pandas as pd
 
 gdf_nuts_wgs84 = gdf_nuts.to_crs("EPSG:4326")
-nuts_center    = gdf_nuts_wgs84.geometry.centroid.union_all().centroid
+nuts_center = gdf_nuts_wgs84.geometry.centroid.union_all().centroid
 
 m_nuts = folium.Map(location=[nuts_center.y, nuts_center.x], zoom_start=10)
 
@@ -1269,9 +1330,9 @@ m_nuts
 ```{python}
 #| eval: true
 #| echo: true
-#| results: hide
+#| include: false
 nuts_id = "LU000"
-year    = 2024
+year = 2024
 
 response_nuts = requests.get(
     f"{api_url}/predict_nuts",
@@ -1296,7 +1357,7 @@ import numpy as np
 import pandas as pd
 
 gdf_nuts_wgs84 = gdf_nuts.to_crs("EPSG:4326")
-nuts_center    = gdf_nuts_wgs84.geometry.centroid.union_all().centroid
+nuts_center = gdf_nuts_wgs84.geometry.centroid.union_all().centroid
 
 m_nuts = folium.Map(location=[nuts_center.y, nuts_center.x], zoom_start=10)
 
@@ -1325,9 +1386,9 @@ df_filenames = pd.read_parquet(url_filenames)
 tile_filenames = df_filenames.filename.tolist()
 
 for filename in tile_filenames:
-    si       = get_satellite_image(minio_url + s3_base + filename, n_bands=14)
+    si = get_satellite_image(minio_url + s3_base + filename, n_bands=14)
     rgb_tile = np.transpose(si["array"][[3, 2, 1]], (1, 2, 0)).astype(np.float32)
-    p98      = np.percentile(rgb_tile, 98)
+    p98 = np.percentile(rgb_tile, 98)
     rgb_tile = np.clip(rgb_tile / p98, 0, 1)
     w, s, e, n = transform_bounds(si["crs"], "EPSG:4326", *si["bounds"])
     ImageOverlay(image=rgb_tile, bounds=[[s, w], [n, e]], opacity=0.7).add_to(fg_img)

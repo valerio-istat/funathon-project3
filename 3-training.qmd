@@ -180,6 +180,20 @@ Training a deep learning model involves experimenting with many hyperparameters:
 
 PyTorch Lightning integrates with MLflow through `MLFlowLogger`. On SSP Cloud, an MLflow tracking server is available as a separate service you can launch from the catalogue.
 
+::: {.callout-note}
+## Finding your MLflow URI on SSP Cloud
+
+Launch an **MLflow** service from the SSP Cloud service catalogue. Once it starts, its public URL appears in the service details. It typically looks like `https://user-<username>-mlflow.user.lab.sspcloud.fr`.
+
+If you opened your MLflow service **after** your VSCode service, create a `.env` file at the root of your project and fill in your MLflow credentials:
+
+```
+MLFLOW_TRACKING_URI=""
+MLFLOW_TRACKING_USERNAME=""
+MLFLOW_TRACKING_PASSWORD=""
+```
+:::
+
 ```{python}
 #| eval: false
 
@@ -194,12 +208,6 @@ mlf_logger = MLFlowLogger(
     log_model=True,   # upload the best checkpoint as an MLflow artifact
 )
 ```
-
-::: {.callout-note}
-## Finding your MLflow URI on SSP Cloud
-
-Launch an **MLflow** service from the SSP Cloud service catalogue. Once it starts, its public URL appears in the service details. It typically looks like `https://user-<username>-mlflow.user.lab.sspcloud.fr`.
-:::
 
 ## Passing the logger to the Trainer
 
@@ -256,6 +264,28 @@ mlf_logger.log_hyperparams({
 
 During early training, models often collapse to predicting the majority class everywhere. Monitoring the fraction of pixels predicted as "building" helps detect this: if `building_rate ≈ 0` after a few epochs, the model is ignoring the minority class — likely a sign of too high a learning rate or severe class imbalance.
 :::
+
+## Registering and loading the best model
+
+Once training is complete, MLflow lets you version and compare runs, then promote the best model to a **Model Registry**. Follow these steps:
+
+1. In the top left, select **Model Training**.
+2. Go to **Experiments** and open `"funathon-2026-project3"`.
+3. In the **Runs** section, compare runs using the logged metrics and select the best-performing one.
+4. Click **Register model**, name it `"segmentation-sentinel2-model"`, and confirm.
+5. Verify it appears in the **Model Registry**.
+
+Once registered, you can load the model directly from the registry:
+
+```{python}
+#| eval: false
+
+import mlflow.pyfunc
+
+model = mlflow.pyfunc.load_model(
+    model_uri="models:/segmentation-sentinel2-model/latest"
+)
+```
 
 ::: {.callout-caution}
 ## Exercise 4 — Instrument a run with MLflow
