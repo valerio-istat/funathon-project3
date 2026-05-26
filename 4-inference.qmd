@@ -1535,18 +1535,9 @@ print(gdf_nuts.head())
 import folium
 import numpy as np
 
-# Folium embeds every polygon coordinate into the HTML, so a NUTS3-scale prediction
-# (tens of thousands of polygons at 10 m resolution) can balloon to 150+ MB. Two
-# operations keep the output tractable:
-#  - dissolve(by="label"): merge same-class polygons into one multipolygon per class
-#    (≈ thousands → 10 features), avoiding Leaflet's per-feature JavaScript overhead;
-#  - simplify(500): drop vertices within 500 m in EPSG:3035 (metric CRS, so 500 = 500 m).
-#    At country zoom level this is invisible but cuts vertex count by ~50×.
-gdf_nuts_dissolved = gdf_nuts.dissolve(by="label").reset_index()
-gdf_nuts_dissolved["geometry"] = gdf_nuts_dissolved.geometry.simplify(500, preserve_topology=True)
-# Reproject only after simplification: simplify works on the metric CRS (where 500 = 500 m),
-# whereas in EPSG:4326 a tolerance of 500 would be in degrees (~55 km, useless).
-gdf_nuts_wgs84 = gdf_nuts_dissolved.to_crs("EPSG:4326")
+
+# Reprojection
+gdf_nuts_wgs84 = gdf_nuts.to_crs("EPSG:4326")
 nuts_center = gdf_nuts_wgs84.geometry.centroid.union_all().centroid
 
 m_nuts = folium.Map(location=[nuts_center.y, nuts_center.x], zoom_start=10)
@@ -1622,18 +1613,7 @@ print(gdf_nuts.head())
 import folium
 import numpy as np
 
-# Folium embeds every polygon coordinate into the HTML, so a NUTS3-scale prediction
-# (tens of thousands of polygons at 10 m resolution) can balloon to 150+ MB. Two
-# operations keep the output tractable:
-#  - dissolve(by="label"): merge same-class polygons into one multipolygon per class
-#    (≈ thousands → 10 features), avoiding Leaflet's per-feature JavaScript overhead;
-#  - simplify(500): drop vertices within 500 m in EPSG:3035 (metric CRS, so 500 = 500 m).
-#    At country zoom level this is invisible but cuts vertex count by ~50×.
-gdf_nuts_dissolved = gdf_nuts.dissolve(by="label").reset_index()
-gdf_nuts_dissolved["geometry"] = gdf_nuts_dissolved.geometry.simplify(500, preserve_topology=True)
-# Reproject only after simplification: simplify works on the metric CRS (where 500 = 500 m),
-# whereas in EPSG:4326 a tolerance of 500 would be in degrees (~55 km, useless).
-gdf_nuts_wgs84 = gdf_nuts_dissolved.to_crs("EPSG:4326")
+gdf_nuts_wgs84 = gdf_nuts.to_crs("EPSG:4326")
 nuts_center = gdf_nuts_wgs84.geometry.centroid.union_all().centroid
 
 m_nuts = folium.Map(location=[nuts_center.y, nuts_center.x], zoom_start=10)
