@@ -1,7 +1,6 @@
 project:
   type: website
   render:
-    - "map-nuts.qmd"
     - "*.qmd"
 website:
   title: "AIML4OS Funathon - Project 3"
