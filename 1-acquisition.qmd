@@ -694,39 +694,41 @@ The HTTPS URLs work from anywhere without credentials — great for reading indi
 :::
 
 ::: {.callout-important}
-**Available regions.** Not all NUTS3 regions have pre-processed tiles. The following **27 regions** are covered:
+**Available regions.** Not all NUTS3 regions have pre-processed tiles. The following **27 regions** are covered:  
 
-| NUTS3 Code | Country |
-|---|---|
-| AT332 | Austria |
-| BE100 | Belgium |
-| BG332 | Bulgaria |
-| CY000 | Cyprus |
-| CZ072 | Czechia |
-| DEA54 | Germany |
-| DK041 | Denmark |
-| EE00A | Estonia |
-| EL521 | Greece |
-| ES612 | Spain |
-| FI1C1 | Finland |
-| FRJ27 | France |
-| FRK26 | France |
-| HR050 | Croatia |
-| IE061 | Irland |
-| ITI32 | Italy |
-| LT028 | Lithuania |
-| LU000 | Luxembourg |
-| LV008 | Latvia |
-| MT001 | Malta |
-| NL33C | Netherlands |
-| PL414 | Poland |
-| PT16I | Portugal |
-| RO123 | Romania |
-| SE311 | Sweden |
-| SI035 | Slovenia |
-| SK022 | Slovakia |
-| UKJ22 | United Kingdom |
-| UKRAINE | Ukraine |
+| NUTS3 Code | Country        | Years available    |
+|------------|----------------|--------------------|
+| AT332      | Austria        | 2018, 2021, 2024   |
+| BE100      | Belgium        | 2018, 2021, 2024   |
+| BE251      | Belgium        | 2018, 2021, 2024   |
+| BG322      | Bulgaria       | 2018, 2021, 2024   |
+| CY000      | Cyprus         | 2021, 2024         |
+| CZ072      | Czechia        | 2021, 2024         |
+| DEA54      | Germany        | 2018, 2021, 2024   |
+| DK041      | Denmark        | 2018, 2024         |
+| EE00A      | Estonia        | 2018, 2021, 2024   |
+| EL521      | Greece         | 2018, 2021, 2024   |
+| ES612      | Spain          | 2018, 2021, 2024   |
+| FI1C1      | Finland        | 2018, 2021, 2024   |
+| FRJ27      | France         | 2018, 2021, 2024   |
+| FRK26      | France         | 2018, 2021, 2024   |
+| HR050      | Croatia        | 2018, 2021, 2024   |
+| IE061      | Ireland        | 2018, 2021         |
+| ITI32      | Italy          | 2018, 2021, 2024   |
+| LT028      | Lithuania      | 2018, 2021, 2024   |
+| LU000      | Luxembourg     | 2018, 2021, 2024   |
+| LV008      | Latvia         | 2018, 2021, 2024   |
+| MT001      | Malta          | 2018, 2021, 2024   |
+| NL33C      | Netherlands    | 2018, 2021, 2024   |
+| PL414      | Poland         | 2018, 2021, 2024   |
+| PT16I      | Portugal       | 2018, 2021, 2024   |
+| RO123      | Romania        | 2018, 2021, 2024   |
+| SE311      | Sweden         | 2018, 2021, 2024   |
+| SI035      | Slovenia       | 2018, 2021, 2024   |
+| SK022      | Slovakia       | 2018, 2021, 2024   |
+| UKJ22      | United Kingdom | 2018, 2021, 2024   |
+| UKRAINE    | Ukraine        | 2018, 2021, 2024   |
+
 
 ::: {.callout-note}
 **Scale of the dataset and class imbalance.** Across the 27 pre-processed NUTS3 regions and the available years (2021 and 2024), the dataset contains roughly **15 000–20 000 `(image, label)` patches** — a comfortable size for training a segmentation model on a single GPU. Because these regions are built around European capital cities, the 10 CLC+ classes are *not* evenly represented: *sealed surfaces*, *permanent herbaceous* and *periodically herbaceous* dominate, while *lichens and mosses* or *broadleaved evergreen trees* are rare or completely absent in most tiles. This **class imbalance** is a first-order concern when training a segmentation model — naive training will optimise for the common classes and ignore the rare ones.
