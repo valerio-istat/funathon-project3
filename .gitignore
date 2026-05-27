@@ -177,3 +177,13 @@ cython_debug/
 .jupyter_cache/
 _site/
 **/*.quarto_ipynb
+
+# Debate Simulator local runs
+.debate-simulator/runs/
+.debate-simulator/latest
+
+.debate-simulator/*
+.github/*
+.vscode/*
+tools/*
+FUNATHON_DEBATE_INTEGRATION.md

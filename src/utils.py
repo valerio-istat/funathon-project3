@@ -13,12 +13,15 @@ def get_file_system() -> S3FileSystem:
     """
     Return the configured S3 file system.
     """
-    return S3FileSystem(
-        client_kwargs={"endpoint_url": f"https://{os.environ['AWS_S3_ENDPOINT']}"},
-        key=os.environ["AWS_ACCESS_KEY_ID"],
-        secret=os.environ["AWS_SECRET_ACCESS_KEY"],
-        token="",
-    )
+    token = os.environ.get("AWS_SESSION_TOKEN")
+    fs_kwargs = {
+        "client_kwargs": {"endpoint_url": f"https://{os.environ['AWS_S3_ENDPOINT']}"},
+        "key": os.environ["AWS_ACCESS_KEY_ID"],
+        "secret": os.environ["AWS_SECRET_ACCESS_KEY"],
+    }
+    if token:
+        fs_kwargs["token"] = token
+    return S3FileSystem(**fs_kwargs)
 
 
 def download_label(format_ext, filename, common_params, export_url):
