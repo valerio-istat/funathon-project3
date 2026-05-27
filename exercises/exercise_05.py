@@ -72,3 +72,4 @@ ax.set_title(f"Sentinel-2 - {tile_filename}")
 ax.axis("off")
 plt.tight_layout()
 plt.show()
+# %%

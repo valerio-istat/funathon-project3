@@ -27,3 +27,4 @@ for _, row in joined.iterrows():
 
 area_km2 = tile_geom.area / 1e6
 print(f"Tile area: {area_km2:.2f} km^2")
+# %%
