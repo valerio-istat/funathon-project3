@@ -1,7 +1,8 @@
-import os
-import urllib.request
+# %%
+
 import rasterio
 import numpy as np
+import matplotlib.pyplot as plt
 
 tile_url = (
     "https://minio.lab.sspcloud.fr/projet-funathon/2026/"
@@ -9,46 +10,30 @@ tile_url = (
     "2024/4042000_2951690_0_637.tif"
 )
 
+# Step 2a: Open the tile and print the raster profile
 with rasterio.open(tile_url) as src:
-    tile_crs = src.crs
-    tile_bounds = src.bounds
-    tile_count = src.count
-    tile_height = src.height
-    tile_width = src.width
-    tile_profile = src.profile
-    # Read RGB bands: B4 (Red), B3 (Green), B2 (Blue)
+    print(src.profile)
+
+    # Step 2b: Read false-colour bands (NIR=8, Red=4, Green=3)
+    fc_data = src.read([8, 4, 3]) 
     rgb_data = src.read([4, 3, 2])
-    false_color_data = src.read([8, 4, 3])
 
-print(f"CRS:    {tile_crs}")
-print(f"Bounds: {tile_bounds}")
-print(f"Shape:  {tile_count} bands x {tile_height} x {tile_width} px")
-print(f"Profile: {tile_profile}")
-# your code here …
-
-# %%
-import matplotlib.pyplot as plt
-
-# Transpose to (H, W, 3) and normalize for display
+# Step 2c: Normalize for display
+fc = np.transpose(fc_data, (1, 2, 0)).astype(np.float32)
 rgb = np.transpose(rgb_data, (1, 2, 0)).astype(np.float32)
-false_color = np.transpose(false_color_data, (1, 2, 0)).astype(np.float32)
+p98 = np.percentile(rgb, 98) 
+rgb = np.clip(rgb / p98, 0, 1) 
+p98 = np.percentile(fc, 98) 
+fc = np.clip(fc / p98, 0, 1) 
 
-rgb_pct = np.percentile(rgb, 98)
-false_pct = np.percentile(false_color, 98)
-
-rgb = np.clip(rgb / rgb_pct, 0, 1)
-false_color = np.clip(false_color / false_pct, 0, 1)
-
-fig, ax = plt.subplots(figsize=(5, 5))
-ax.imshow(rgb)
-ax.set_title("Sentinel-2 RGB composite (B4, B3, B2) — LU000")
-ax.axis("off")
+# Step 2d: Display side by side with the true-colour RGB
+fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+axes[0].imshow(rgb)
+axes[0].set_title("True colour (B4, B3, B2)")
+axes[0].axis("off")
+axes[1].imshow(fc)
+axes[1].set_title("False colour (B8, B4, B3)")
+axes[1].axis("off")
 plt.tight_layout()
 plt.show()
-
-fig, ax = plt.subplots(figsize=(5, 5))
-ax.imshow(false_color)
-ax.set_title("Sentinel-2 False color composite (B8, B4, B3) — LU000")
-ax.axis("off")
-plt.tight_layout()
-plt.show()
+# %%
