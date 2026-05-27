@@ -22,3 +22,5 @@ ax.axis("off")
 fig.colorbar(im, ax=ax, shrink=0.8, label="NDVI")
 plt.tight_layout()
 plt.show()
+
+# %%

@@ -29,3 +29,5 @@ axes[1].set_title("False colour (B8, B4, B3)")
 axes[1].axis("off")
 plt.tight_layout()
 plt.show()
+
+# %%
