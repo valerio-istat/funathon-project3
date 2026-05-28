@@ -694,37 +694,41 @@ The HTTPS URLs work from anywhere without credentials — great for reading indi
 :::
 
 ::: {.callout-important}
-**Available regions.** Not all NUTS3 regions have pre-processed tiles. The following **27 regions** are covered:
+**Available regions.** Not all NUTS3 regions have pre-processed tiles. The following **27 regions** are covered:  
 
-| NUTS3 Code | Region | Country |
-|---|---|---|
-| AT130 | Wien (Vienna) | Austria |
-| BE100 | Bruxelles-Capitale (Brussels) | Belgium |
-| BG411 | Sofia (Capital) | Bulgaria |
-| CZ010 | Praha (Prague) | Czechia |
-| DE300 | Berlin | Germany |
-| DEA23 | Köln (Cologne) | Germany |
-| DK011 | Byen København (Copenhagen) | Denmark |
-| EE001 | Põhja-Eesti (Northern Estonia / Tallinn) | Estonia |
-| EL303 | Kentrikos Tomeas Athinon (Central Athens) | Greece |
-| ES300 | Comunidad de Madrid | Spain |
-| FI1B1 | Helsinki-Uusimaa | Finland |
-| FR101 | Paris | France |
-| FRJ27 | Tarn (Albi) | France |
-| HRO41 | Grad Zagreb (City of Zagreb) | Croatia |
-| HU110 | Budapest | Hungary |
-| ITI43 | Roma (Rome) | Italy |
-| LT011 | Vilniaus apskritis (Vilnius) | Lithuania |
-| LU000 | Luxembourg | Luxembourg |
-| LV006 | Rīga | Latvia |
-| MT001 | Malta | Malta |
-| NL329 | Groot-Amsterdam (Amsterdam area) | Netherlands |
-| PL127 | Miasto Warszawa (Warsaw) | Poland |
-| PT170 | Área Metropolitana de Lisboa (Lisbon) | Portugal |
-| RO321 | București (Bucharest) | Romania |
-| SE110 | Stockholms län (Stockholm) | Sweden |
-| SI041 | Osrednjeslovenska (Ljubljana area) | Slovenia |
-| SK010 | Bratislavský kraj (Bratislava) | Slovakia |
+| NUTS3 Code | Country        | Years available    |
+|------------|----------------|--------------------|
+| AT332      | Austria        | 2018, 2021, 2024   |
+| BE100      | Belgium        | 2018, 2021, 2024   |
+| BE251      | Belgium        | 2018, 2021, 2024   |
+| BG322      | Bulgaria       | 2018, 2021, 2024   |
+| CY000      | Cyprus         | 2021, 2024         |
+| CZ072      | Czechia        | 2021, 2024         |
+| DEA54      | Germany        | 2018, 2021, 2024   |
+| DK041      | Denmark        | 2018, 2024         |
+| EE00A      | Estonia        | 2018, 2021, 2024   |
+| EL521      | Greece         | 2018, 2021, 2024   |
+| ES612      | Spain          | 2018, 2021, 2024   |
+| FI1C1      | Finland        | 2018, 2021, 2024   |
+| FRJ27      | France         | 2018, 2021, 2024   |
+| FRK26      | France         | 2018, 2021, 2024   |
+| HR050      | Croatia        | 2018, 2021, 2024   |
+| IE061      | Ireland        | 2018, 2021         |
+| ITI32      | Italy          | 2018, 2021, 2024   |
+| LT028      | Lithuania      | 2018, 2021, 2024   |
+| LU000      | Luxembourg     | 2018, 2021, 2024   |
+| LV008      | Latvia         | 2018, 2021, 2024   |
+| MT001      | Malta          | 2018, 2021, 2024   |
+| NL33C      | Netherlands    | 2018, 2021, 2024   |
+| PL414      | Poland         | 2018, 2021, 2024   |
+| PT16I      | Portugal       | 2018, 2021, 2024   |
+| RO123      | Romania        | 2018, 2021, 2024   |
+| SE311      | Sweden         | 2018, 2021, 2024   |
+| SI035      | Slovenia       | 2018, 2021, 2024   |
+| SK022      | Slovakia       | 2018, 2021, 2024   |
+| UKJ22      | United Kingdom | 2018, 2021, 2024   |
+| UKRAINE    | Ukraine        | 2018, 2021, 2024   |
+
 
 ::: {.callout-note}
 **Scale of the dataset and class imbalance.** Across the 27 pre-processed NUTS3 regions and the available years (2021 and 2024), the dataset contains roughly **15 000–20 000 `(image, label)` patches** — a comfortable size for training a segmentation model on a single GPU. Because these regions are built around European capital cities, the 10 CLC+ classes are *not* evenly represented: *sealed surfaces*, *permanent herbaceous* and *periodically herbaceous* dominate, while *lichens and mosses* or *broadleaved evergreen trees* are rare or completely absent in most tiles. This **class imbalance** is a first-order concern when training a segmentation model — naive training will optimise for the common classes and ignore the rare ones.
@@ -786,6 +790,10 @@ city_nuts = gpd.sjoin(city_point, nuts, predicate="within")
 nuts_code = city_nuts.iloc[0]["NUTS_ID"]
 print(f"NUTS3 region: {nuts_code}")  # → LU000
 ```
+
+::: {.callout-warning}
+**Stay within the supported regions.** The code above will compute a NUTS3 code for **any** city worldwide, but the rest of this notebook — and all the exercises that follow — only have pre-processed tiles for the regions listed in the *Available regions* table above (e.g. `LU000`, `BE100`, `FRJ27`, …). If your city falls outside those regions, the S3 URL built in the next step will point at an empty prefix and every downstream exercise will fail to load any data. Pick a city inside one of the supported NUTS3 regions before continuing.
+:::
 
 Once you have the NUTS3 code, you can build the S3 base URL for tiles in that region:
 
@@ -861,32 +869,35 @@ nuts_code = city_nuts.iloc[0][___]  # TODO: column name
 
 # Step 4: Check availability
 available = [
-    "AT130",
+    "AT332",
     "BE100",
-    "BG411",
-    "CZ010",
-    "DE300",
-    "DEA23",
-    "EE001",
-    "EL303",
-    "ES300",
-    "FI1B1",
-    "FR101",
+    "BE251",
+    "BG322",
+    "CY000",
+    "CZ072",
+    "DEA54",
+    "DK041",
+    "EE00A",
+    "EL521",
+    "ES612",
+    "FI1C1",
     "FRJ27",
+    "FRK26",
+    "HR050",
+    "IE061",
+    "ITI32",
+    "LT028",
     "LU000",
-    "HRO41",
-    "HU110",
-    "ITI43",
-    "LT011",
-    "LV006",
+    "LV008",
     "MT001",
-    "NL329",
-    "PL127",
-    "PT170",
-    "RO321",
-    "SE110",
-    "SI041",
-    "SK010",
+    "NL33C",
+    "PL414",
+    "PT16I",
+    "RO123",
+    "SE311",
+    "SI035",
+    "SK022",
+    "UKJ22",
 ]
 print(f"NUTS3 code: {nuts_code}, available: {nuts_code in available}")
 
@@ -934,33 +945,35 @@ print(f"NUTS3 region: {nuts_code}")  # → BE100
 
 # Step 4: Check availability
 available = [
-    "AT130",
+    "AT332",
     "BE100",
-    "BG411",
-    "CZ010",
-    "DE300",
-    "DEA23",
-    "DK011",
-    "EE001",
-    "EL303",
-    "ES300",
-    "FI1B1",
-    "FR101",
+    "BE251",
+    "BG322",
+    "CY000",
+    "CZ072",
+    "DEA54",
+    "DK041",
+    "EE00A",
+    "EL521",
+    "ES612",
+    "FI1C1",
     "FRJ27",
-    "HRO41",
-    "HU110",
-    "ITI43",
-    "LT011",
+    "FRK26",
+    "HR050",
+    "IE061",
+    "ITI32",
+    "LT028",
     "LU000",
-    "LV006",
+    "LV008",
     "MT001",
-    "NL329",
-    "PL127",
-    "PT170",
-    "RO321",
-    "SE110",
-    "SI041",
-    "SK010",
+    "NL33C",
+    "PL414",
+    "PT16I",
+    "RO123",
+    "SE311",
+    "SI035",
+    "SK022",
+    "UKJ22",
 ]
 print(f"Available: {nuts_code in available}")  # → True
 
@@ -1443,21 +1456,67 @@ plt.show()
 
 ### Interactive map with folium
 
-For an interactive web map, use [Folium](https://python-visualization.github.io/folium/) to overlay the satellite image on a basemap:
+For an interactive web map, use [Folium](https://python-visualization.github.io/folium/) to overlay the satellite image on a basemap.
+
+::: {.callout-important}
+**Reproject the pixels, not just the bounds.** Folium and the underlying Leaflet library only render tiles in WGS84 (EPSG:4326, lat/lon). Our Sentinel-2 tile lives in EPSG:3035 (a metric projection used across Europe), so giving Folium the EPSG:3035 pixels with a WGS84 bounding box would stretch the image into the WGS84 rectangle — pixels would shift compared to the basemap, and the distortion grows the farther north you are. To get a correctly aligned overlay we have to resample the *pixels themselves* onto a WGS84 grid using `rasterio.warp.reproject`, then hand Folium the warped array. This is the same pipeline used in the inference section.
+:::
 
 ```{python}
 #| eval: true
 
 import folium
+import numpy as np
 from folium.raster_layers import ImageOverlay
+from rasterio.transform import from_bounds
+from rasterio.warp import (
+    transform_bounds,
+    reproject,
+    Resampling,
+    calculate_default_transform,
+)
+from rasterio.crs import CRS
 
+dst_crs = CRS.from_epsg(4326)
+
+# rgb_data is the raw (3, H, W) array of R/G/B reflectances in EPSG:3035.
+# Derive the source affine transform from the bounds and shape.
+h, w = rgb_data.shape[1], rgb_data.shape[2]
+src_transform = from_bounds(*tile_bounds, w, h)
+
+# calculate_default_transform picks an output grid in EPSG:4326 that covers the
+# same area; reproject() then resamples each band onto that grid.
+dst_transform, dst_w, dst_h = calculate_default_transform(
+    tile_crs, dst_crs, w, h, *tile_bounds
+)
+
+rgb_wgs84_bands = np.zeros((3, dst_h, dst_w), dtype=np.float32)
+for i in range(3):
+    reproject(
+        source=rgb_data[i].astype(np.float32),
+        destination=rgb_wgs84_bands[i],
+        src_transform=src_transform,
+        src_crs=tile_crs,
+        dst_transform=dst_transform,
+        dst_crs=dst_crs,
+        resampling=Resampling.bilinear,  # bilinear for continuous reflectance values
+    )
+
+p98 = np.percentile(rgb_wgs84_bands[rgb_wgs84_bands > 0], 98)
+rgb_wgs84 = np.clip(np.transpose(rgb_wgs84_bands, (1, 2, 0)) / p98, 0, 1)
+# Reprojection from a tilted source produces empty triangular corners. Build an
+# alpha channel from "where was there any data?" so those corners stay transparent.
+alpha = (rgb_wgs84_bands.max(axis=0) > 0).astype(np.float32)
+rgba_wgs84 = np.dstack([rgb_wgs84, alpha])
+
+west, south, east, north = transform_bounds(tile_crs, dst_crs, *tile_bounds)
 center_lat = (south + north) / 2
 center_lon = (west + east) / 2
 
 m = folium.Map(location=[center_lat, center_lon], zoom_start=14)
 
 ImageOverlay(
-    image=rgb,
+    image=rgba_wgs84,
     bounds=[[south, west], [north, east]],
     opacity=0.7,
 ).add_to(m)
@@ -1473,23 +1532,26 @@ m
 ::: {.callout-caution}
 ## Exercise 8 — Display a Sentinel-2 tile on an interactive folium map
 
-**Goal:** Reproject the tile bounds to WGS84 and display the RGB composite on an interactive folium map.
+**Goal:** Reproject the RGB image to WGS84 and display it on an interactive folium map. Because Folium only renders EPSG:4326 tiles, you must warp the *pixels* — not just the bounding box — onto a WGS84 grid.
 
 **Steps:**
 
-1. Use `transform_bounds()` to convert the tile bounds from EPSG:3035 to EPSG:4326
-2. Compute the centre of the tile (average of south/north and west/east)
-3. Create a `folium.Map` centred on the tile
-4. Add an `ImageOverlay` with the RGB array and WGS84 bounds
+1. Use `calculate_default_transform()` to compute the output grid in EPSG:4326
+2. Call `reproject()` once per RGB band with `Resampling.bilinear` to warp the pixels onto that grid
+3. Normalize the warped bands to `[0, 1]` and build an alpha channel from the data mask (transparent corners)
+4. Use `transform_bounds()` to get the WGS84 `(west, south, east, north)` of the tile
+5. Create a `folium.Map` centred on the tile and add an `ImageOverlay` with the warped RGBA array
 :::
 
 ::: {.callout-tip collapse="true"}
 ## Hint — Exercise 8
 
+- `calculate_default_transform(tile_crs, dst_crs, w, h, *tile_bounds)` returns the WGS84 grid that covers the same area.
+- Loop over the 3 RGB bands and call `reproject(...)` per band, writing into the corresponding slice of `rgb_wgs84_bands` (`shape == (3, dst_h, dst_w)`).
+- Use `Resampling.bilinear` for reflectance (continuous values). `Resampling.nearest` is for categorical rasters like labels.
+- `alpha = (rgb_wgs84_bands.max(axis=0) > 0).astype(np.float32)` turns the empty triangular corners (from the rotated source) into transparent pixels.
 - `transform_bounds(tile_crs, "EPSG:4326", *tile_bounds)` returns `(west, south, east, north)` in degrees.
-- Centre: `center_lat = (south + north) / 2`, `center_lon = (west + east) / 2`.
-- `folium.Map(location=[center_lat, center_lon], zoom_start=14)` creates the map.
-- `ImageOverlay(image=rgb, bounds=[[south, west], [north, east]], opacity=0.7).add_to(m)` overlays the image.
+- `ImageOverlay(image=rgba_wgs84, bounds=[[south, west], [north, east]], opacity=0.7).add_to(m)` overlays the warped image.
 
 **Code template:**
 
@@ -1497,21 +1559,51 @@ m
 #| eval: false
 
 import folium
+import numpy as np
 from folium.raster_layers import ImageOverlay
-from rasterio.warp import transform_bounds
+from rasterio.transform import from_bounds
+from rasterio.warp import (
+    transform_bounds,
+    reproject,
+    Resampling,
+    calculate_default_transform,
+)
+from rasterio.crs import CRS
 
-# Step 1: Reproject bounds to WGS84
+dst_crs = CRS.from_epsg(4326)
+
+# Step 1: Compute the WGS84 output grid
+h, w = rgb_data.shape[1], rgb_data.shape[2]
+src_transform = from_bounds(*tile_bounds, w, h)
+dst_transform, dst_w, dst_h = ___  # TODO: calculate_default_transform(...)
+
+# Step 2: Reproject each band onto that grid
+rgb_wgs84_bands = np.zeros((3, dst_h, dst_w), dtype=np.float32)
+for i in range(3):
+    reproject(
+        source=rgb_data[i].astype(np.float32),
+        destination=rgb_wgs84_bands[i],
+        src_transform=src_transform,
+        src_crs=___,         # TODO: source CRS
+        dst_transform=dst_transform,
+        dst_crs=___,         # TODO: destination CRS
+        resampling=___,      # TODO: Resampling.bilinear (continuous values)
+    )
+
+# Step 3: Normalize + alpha channel for transparent corners
+p98 = np.percentile(rgb_wgs84_bands[rgb_wgs84_bands > 0], 98)
+rgb_wgs84 = np.clip(np.transpose(rgb_wgs84_bands, (1, 2, 0)) / p98, 0, 1)
+alpha = ___  # TODO: (rgb_wgs84_bands.max(axis=0) > 0).astype(np.float32)
+rgba_wgs84 = np.dstack([rgb_wgs84, alpha])
+
+# Step 4: Reproject the bounds and pick a centre
 west, south, east, north = ___  # TODO: transform_bounds(...)
-
-# Step 2: Compute the centre
 center_lat = ___  # TODO
 center_lon = ___  # TODO
 
-# Step 3: Create the folium map
+# Step 5: Build the folium map
 m = ___  # TODO: folium.Map(...)
-
-# Step 4: Add the satellite image overlay
-___  # TODO: ImageOverlay(...).add_to(m)
+___  # TODO: ImageOverlay(image=rgba_wgs84, ...).add_to(m)
 
 m
 ```
@@ -1524,20 +1616,54 @@ m
 #| eval: false
 
 import folium
+import numpy as np
 from folium.raster_layers import ImageOverlay
-from rasterio.warp import transform_bounds
+from rasterio.transform import from_bounds
+from rasterio.warp import (
+    transform_bounds,
+    reproject,
+    Resampling,
+    calculate_default_transform,
+)
+from rasterio.crs import CRS
 
-west, south, east, north = transform_bounds(
-    tile_crs, "EPSG:4326", *tile_bounds
+dst_crs = CRS.from_epsg(4326)
+
+# Step 1: Compute the WGS84 output grid that covers the tile
+h, w = rgb_data.shape[1], rgb_data.shape[2]
+src_transform = from_bounds(*tile_bounds, w, h)
+dst_transform, dst_w, dst_h = calculate_default_transform(
+    tile_crs, dst_crs, w, h, *tile_bounds
 )
 
+# Step 2: Reproject each RGB band onto that grid
+rgb_wgs84_bands = np.zeros((3, dst_h, dst_w), dtype=np.float32)
+for i in range(3):
+    reproject(
+        source=rgb_data[i].astype(np.float32),
+        destination=rgb_wgs84_bands[i],
+        src_transform=src_transform,
+        src_crs=tile_crs,
+        dst_transform=dst_transform,
+        dst_crs=dst_crs,
+        resampling=Resampling.bilinear,
+    )
+
+# Step 3: Normalize to [0, 1] and build the alpha channel
+p98 = np.percentile(rgb_wgs84_bands[rgb_wgs84_bands > 0], 98)
+rgb_wgs84 = np.clip(np.transpose(rgb_wgs84_bands, (1, 2, 0)) / p98, 0, 1)
+alpha = (rgb_wgs84_bands.max(axis=0) > 0).astype(np.float32)
+rgba_wgs84 = np.dstack([rgb_wgs84, alpha])
+
+# Step 4: Reproject the bounds and centre the map
+west, south, east, north = transform_bounds(tile_crs, dst_crs, *tile_bounds)
 center_lat = (south + north) / 2
 center_lon = (west + east) / 2
 
+# Step 5: Build the map
 m = folium.Map(location=[center_lat, center_lon], zoom_start=14)
-
 ImageOverlay(
-    image=rgb,
+    image=rgba_wgs84,
     bounds=[[south, west], [north, east]],
     opacity=0.7,
 ).add_to(m)
@@ -1822,24 +1948,25 @@ Before training any model, it is good practice to **inspect the training data vi
 ::: {.callout-caution}
 ## Exercise 10 — Overlay the satellite image and CLC+ label on an interactive map
 
-**Goal:** Create an interactive folium map displaying both the Sentinel-2 RGB composite and the CLC+ land-cover label as toggleable overlays.
+**Goal:** Create an interactive folium map displaying both the Sentinel-2 RGB composite and the CLC+ land-cover label as toggleable overlays. Both rasters live in EPSG:3035 and must be reprojected to WGS84 — pixels and all — before Folium can render them correctly (same reasoning as Exercise 8).
 
 **Steps:**
 
-1. Load the satellite image for `LU000/2021` with `rasterio` and build an RGB composite (bands 4, 3, 2)
+1. Load the satellite image for `LU000/2021` with `rasterio` and read RGB bands (4, 3, 2)
 2. Load the matching CLC+ label from S3
-3. Convert the label array to an RGBA image: map each class ID to its CLC+ colour (with alpha = 0.7), and set nodata pixels (class 0) to fully transparent
-4. Reproject the tile bounds from EPSG:3035 to WGS84 using `transform_bounds()`
-5. Create a `folium.Map` centred on the tile
-6. Add two `ImageOverlay` layers: one for the RGB image, one for the label RGBA
-7. Add a `folium.LayerControl()` so layers can be toggled on and off
+3. Reproject the RGB bands to WGS84 with `Resampling.bilinear` (continuous reflectance) and the integer label with `Resampling.nearest` (categorical — bilinear would invent non-existent class IDs)
+4. Normalize the warped RGB, build an alpha channel for the empty corners, and apply a colour lookup table to the warped label
+5. Reproject the tile bounds with `transform_bounds()`, create a `folium.Map`, and add the two `ImageOverlay` layers
+6. Add a `folium.LayerControl()` so layers can be toggled on and off
 :::
 
 ::: {.callout-tip collapse="true"}
 ## Hint — Exercise 10
 
+- `Resampling.bilinear` for the RGB bands; `Resampling.nearest` for the label (do **not** average integer class IDs).
+- Use the *same* `dst_transform / dst_w / dst_h` for both rasters so the two layers stay pixel-aligned.
+- Apply the colour LUT **after** warping (`color_lut[label_wgs84]`), so the LUT maps integer class IDs and the alpha channel of class 0 stays exact.
 - `to_rgba("#FF0100", alpha=0.7)` returns an RGBA tuple with values in [0, 1].
-- `color_lut[label]` uses NumPy integer array indexing: each pixel value (0–10) selects the corresponding row from the lookup table, producing an `(H, W, 4)` array.
 - `transform_bounds(src_crs, "EPSG:4326", left, bottom, right, top)` returns `(west, south, east, north)` in WGS84.
 - `ImageOverlay(image=array, bounds=[[south, west], [north, east]], name="Layer Name")` — the `name` parameter is what appears in `LayerControl`.
 - `folium.LayerControl().add_to(m)` adds a toggle widget to switch layers on and off.
@@ -1854,7 +1981,14 @@ import urllib.request
 import io
 import rasterio
 import folium
-from rasterio.warp import transform_bounds
+from rasterio.transform import from_bounds
+from rasterio.warp import (
+    transform_bounds,
+    reproject,
+    Resampling,
+    calculate_default_transform,
+)
+from rasterio.crs import CRS
 from matplotlib.colors import to_rgba
 
 # --- Given: class colours (same as the colormap above) ---
@@ -1871,7 +2005,7 @@ classes = [
     ("Water (10)", "#0080FF"),
 ]
 
-# Step 1: Load satellite image and build RGB composite
+# Step 1: Load satellite image (raw bands, no normalization yet)
 image_url = (
     "https://minio.lab.sspcloud.fr/projet-funathon/2026/"
     "project3/data/images/LU000/"
@@ -1882,9 +2016,6 @@ with rasterio.open(image_url) as src:
     bounds_3035 = src.bounds
     crs = src.crs
 
-rgb_overlay = np.transpose(rgb_data, (1, 2, 0)).astype(np.float32)
-rgb_overlay = np.clip(rgb_overlay / np.percentile(rgb_overlay, 98), 0, 1)
-
 # Step 2: Load the matching label
 label_url = (
     "https://minio.lab.sspcloud.fr/projet-funathon/2026/"
@@ -1894,29 +2025,62 @@ label_url = (
 with urllib.request.urlopen(label_url) as response:
     label = np.load(io.BytesIO(response.read()))
 
-# Step 3: Convert label to RGBA
-# Build a colour lookup table: index 0 = transparent, indices 1-10 = class colours
+# Step 3: Reproject both rasters onto a common WGS84 grid
+dst_crs = CRS.from_epsg(4326)
+h, w = rgb_data.shape[1], rgb_data.shape[2]
+src_transform = from_bounds(*bounds_3035, w, h)
+dst_transform, dst_w, dst_h = calculate_default_transform(
+    crs, dst_crs, w, h, *bounds_3035
+)
+
+rgb_wgs84_bands = np.zeros((3, dst_h, dst_w), dtype=np.float32)
+for i in range(3):
+    reproject(
+        source=rgb_data[i].astype(np.float32),
+        destination=rgb_wgs84_bands[i],
+        src_transform=src_transform,
+        src_crs=crs,
+        dst_transform=dst_transform,
+        dst_crs=dst_crs,
+        resampling=___,  # TODO: bilinear for continuous reflectance
+    )
+
+label_wgs84 = np.zeros((dst_h, dst_w), dtype=label.dtype)
+reproject(
+    source=label,
+    destination=label_wgs84,
+    src_transform=src_transform,
+    src_crs=crs,
+    dst_transform=dst_transform,
+    dst_crs=dst_crs,
+    resampling=___,  # TODO: nearest for categorical class IDs
+)
+
+# Step 4: Build the RGB overlay (normalize + alpha) and the label RGBA (colour LUT)
+p98 = np.percentile(rgb_wgs84_bands[rgb_wgs84_bands > 0], 98)
+rgb_overlay = np.clip(np.transpose(rgb_wgs84_bands, (1, 2, 0)) / p98, 0, 1)
+alpha = (rgb_wgs84_bands.max(axis=0) > 0).astype(np.float32)
+rgba_overlay = np.dstack([rgb_overlay, alpha])
+
 color_lut = np.zeros((11, 4), dtype=np.float32)
 color_lut[0] = ___  # TODO: [0, 0, 0, 0]  (fully transparent for nodata)
 for i, (_, hex_color) in enumerate(classes, start=1):
     color_lut[i] = ___  # TODO: list(to_rgba(hex_color, alpha=0.7))
 
-label_rgba = ___  # TODO: color_lut[label]  (fancy indexing maps (H,W) -> (H,W,4))
+label_rgba = ___  # TODO: color_lut[label_wgs84]
 
-# Step 4: Reproject bounds to WGS84
+# Step 5: Reproject bounds and build the map
 west, south, east, north = ___  # TODO: transform_bounds(crs, "EPSG:4326", *bounds_3035)
 
 center_lat = ___  # TODO: (south + north) / 2
 center_lon = ___  # TODO: (west + east) / 2
 
-# Step 5: Create the folium map
 m = ___  # TODO: folium.Map(location=[center_lat, center_lon], zoom_start=15)
 
-# Step 6: Add overlays
-___  # TODO: folium.raster_layers.ImageOverlay(image=rgb_overlay, bounds=[[south, west], [north, east]], name="Sentinel-2 RGB").add_to(m)
+___  # TODO: folium.raster_layers.ImageOverlay(image=rgba_overlay, bounds=[[south, west], [north, east]], name="Sentinel-2 RGB").add_to(m)
 ___  # TODO: folium.raster_layers.ImageOverlay(image=label_rgba, bounds=[[south, west], [north, east]], name="CLC+ Label", opacity=0.8).add_to(m)
 
-# Step 7: Layer control
+# Step 6: Layer control
 ___  # TODO: folium.LayerControl().add_to(m)
 
 m
@@ -1934,7 +2098,14 @@ import urllib.request
 import io
 import rasterio
 import folium
-from rasterio.warp import transform_bounds
+from rasterio.transform import from_bounds
+from rasterio.warp import (
+    transform_bounds,
+    reproject,
+    Resampling,
+    calculate_default_transform,
+)
+from rasterio.crs import CRS
 from matplotlib.colors import to_rgba
 
 classes = [
@@ -1961,9 +2132,6 @@ with rasterio.open(image_url) as src:
     bounds_3035 = src.bounds
     crs = src.crs
 
-rgb_overlay = np.transpose(rgb_data, (1, 2, 0)).astype(np.float32)
-rgb_overlay = np.clip(rgb_overlay / np.percentile(rgb_overlay, 98), 0, 1)
-
 # Step 2: Load the matching label
 label_url = (
     "https://minio.lab.sspcloud.fr/projet-funathon/2026/"
@@ -1973,26 +2141,62 @@ label_url = (
 with urllib.request.urlopen(label_url) as response:
     label = np.load(io.BytesIO(response.read()))
 
-# Step 3: Convert label to RGBA
+# Step 3: Reproject both rasters onto a common WGS84 grid.
+# RGB → Resampling.bilinear (continuous values); label → Resampling.nearest
+# (categorical: averaging integer class IDs would invent classes that don't exist).
+dst_crs = CRS.from_epsg(4326)
+h, w = rgb_data.shape[1], rgb_data.shape[2]
+src_transform = from_bounds(*bounds_3035, w, h)
+dst_transform, dst_w, dst_h = calculate_default_transform(
+    crs, dst_crs, w, h, *bounds_3035
+)
+
+rgb_wgs84_bands = np.zeros((3, dst_h, dst_w), dtype=np.float32)
+for i in range(3):
+    reproject(
+        source=rgb_data[i].astype(np.float32),
+        destination=rgb_wgs84_bands[i],
+        src_transform=src_transform,
+        src_crs=crs,
+        dst_transform=dst_transform,
+        dst_crs=dst_crs,
+        resampling=Resampling.bilinear,
+    )
+
+label_wgs84 = np.zeros((dst_h, dst_w), dtype=label.dtype)
+reproject(
+    source=label,
+    destination=label_wgs84,
+    src_transform=src_transform,
+    src_crs=crs,
+    dst_transform=dst_transform,
+    dst_crs=dst_crs,
+    resampling=Resampling.nearest,
+)
+
+# Step 4: Build RGB overlay (normalize + alpha for empty corners) and label RGBA.
+p98 = np.percentile(rgb_wgs84_bands[rgb_wgs84_bands > 0], 98)
+rgb_overlay = np.clip(np.transpose(rgb_wgs84_bands, (1, 2, 0)) / p98, 0, 1)
+alpha = (rgb_wgs84_bands.max(axis=0) > 0).astype(np.float32)
+rgba_overlay = np.dstack([rgb_overlay, alpha])
+
 color_lut = np.zeros((11, 4), dtype=np.float32)
 color_lut[0] = [0, 0, 0, 0]
 for i, (_, hex_color) in enumerate(classes, start=1):
     color_lut[i] = list(to_rgba(hex_color, alpha=0.7))
 
-label_rgba = color_lut[label]
+label_rgba = color_lut[label_wgs84]
 
-# Step 4: Reproject bounds to WGS84
+# Step 5: Reproject bounds and build the map
 west, south, east, north = transform_bounds(crs, "EPSG:4326", *bounds_3035)
 
 center_lat = (south + north) / 2
 center_lon = (west + east) / 2
 
-# Step 5: Create the map
 m = folium.Map(location=[center_lat, center_lon], zoom_start=15)
 
-# Step 6: Add overlays
 folium.raster_layers.ImageOverlay(
-    image=rgb_overlay,
+    image=rgba_overlay,
     bounds=[[south, west], [north, east]],
     name="Sentinel-2 RGB",
 ).add_to(m)
@@ -2004,7 +2208,7 @@ folium.raster_layers.ImageOverlay(
     opacity=0.8,
 ).add_to(m)
 
-# Step 7: Layer control
+# Step 6: Layer control
 folium.LayerControl().add_to(m)
 
 m

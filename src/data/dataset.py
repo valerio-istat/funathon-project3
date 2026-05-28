@@ -13,7 +13,7 @@ from albumentations import Compose
 from astrovision.data import SatelliteImage
 from torch.utils.data import Dataset
 
-from src.data.download import get_file_system
+from src.utils import get_file_system
 
 
 class SegmentationDataset(Dataset):
@@ -63,7 +63,10 @@ class SegmentationDataset(Dataset):
             label = np.load(fs.open(f"s3://{self.labels[idx]}"))
         else:
             si = SatelliteImage.from_raster(
-                file_path=self.patchs[idx], dep=None, date=None, n_bands=int(self.n_bands)
+                file_path=self.patchs[idx],
+                dep=None,
+                date=None,
+                n_bands=int(self.n_bands),
             )
 
             label = np.load(self.labels[idx])

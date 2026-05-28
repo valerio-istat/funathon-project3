@@ -108,7 +108,7 @@ Structure of the project:
 
 - The `.qmd` files and the `_quarto.yaml` file are necessary to build the website;
 - The file `pyproject.toml` describes the dependencies of the project;
-- Final solutions are available in the `final_solution/` folder.
+- Final solutions are available in each `.qmd`.
 
 
 
